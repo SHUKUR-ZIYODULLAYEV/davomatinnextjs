@@ -1,5 +1,4 @@
 import { Login } from '@/components'
-import Layout from '@/layout/layout'
 import SEO from '@/layout/seo/seo'
 import React from 'react'
 
