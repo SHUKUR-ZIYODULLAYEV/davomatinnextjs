@@ -68,12 +68,15 @@ const userSlice = createSlice({
         state.user = action.payload;
         state.error = null;
         state.errorStatus = false;
+        sessionStorage.setItem("user", JSON.stringify(action.payload));
+        axios.defaults.headers.common = {
+          Authorization: `Bearer ${action?.payload?.access}`,
+        };
       })
       .addCase(loginAction.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message ?? 'Login failed';
         state.errorStatus = true;
-        // state.error = action.error.message || 'Login failed';
       });
   },
 });
