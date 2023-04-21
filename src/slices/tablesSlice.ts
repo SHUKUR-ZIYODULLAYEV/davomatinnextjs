@@ -10,7 +10,7 @@ interface TableState {
   groups: Group[];
   rooms: Rooms[];
   tutors: Tutor[];
-  deputies: string[];
+  deputies: DeputyDean[];
   tablesStatus: 'idle' | 'loading' | 'failed';
   tablesError: string | null;
   tablesErrorStatus: boolean;
@@ -113,11 +113,6 @@ interface GetRoomsParam {
   floor: string;
 }
 
-interface Tutor {
-  id: number;
-  name: string;
-}
-
 interface SubTutor {
   id: number;
   title: string;
@@ -126,6 +121,17 @@ interface SubTutor {
 interface Tutor {
   id: number;
   group: SubTutor[];
+  name: string;
+}
+
+interface SubDeputyDean {
+  id: number;
+  title: string;
+}
+
+interface DeputyDean {
+  id: number;
+  group: SubDeputyDean[];
   name: string;
 }
 const initialState: TableState = {
@@ -236,6 +242,14 @@ export const GetTutors = createAsyncThunk<Tutor[]>(
   }
 );
 
+export const GetDeputyDean = createAsyncThunk<DeputyDean[]>(
+  "tables/GetDeputyDean",
+  async () => {
+    const response = await axios.get<DeputyDean[]>(api_url + "/api/v1/deputy-dean-list/");
+    return response.data;
+  }
+);
+
 const tablesSlice = createSlice({
   name: 'tables',
   initialState,
@@ -320,6 +334,18 @@ const tablesSlice = createSlice({
         state.tutors = action.payload;
       })
       .addCase(GetTutors.rejected, (state, action) => {
+        state.tablesStatus = "failed";
+        state.tablesError = action.error.message ?? "Something went wrong";
+        state.tablesErrorStatus = true;
+      })
+      .addCase(GetDeputyDean.pending, (state) => {
+        state.tablesStatus = "loading";
+      })
+      .addCase(GetDeputyDean.fulfilled, (state, action) => {
+        state.tablesStatus = "idle";
+        state.deputies = action.payload;
+      })
+      .addCase(GetDeputyDean.rejected, (state, action) => {
         state.tablesStatus = "failed";
         state.tablesError = action.error.message ?? "Something went wrong";
         state.tablesErrorStatus = true;
