@@ -6,7 +6,7 @@ const api_url = process.env.NEXT_PUBLIC_API_URL as string;
 interface TableState {
   tableList: GetTableListResponseData | null,
   allTableList: GetAllTableListResponseData | null;
-  faculties: string[];
+  faculties: Faculty[];
   groups: string[];
   rooms: string[];
   tutors: string[];
@@ -84,6 +84,11 @@ interface GetTableListFormValues {
   end: Date | string;
 }
 
+interface Faculty {
+  id: number;
+  name: string;
+}
+
 const initialState: TableState = {
   tableList: {
     count: 0,
@@ -150,6 +155,14 @@ export const getTableList = createAsyncThunk<GetTableListResponseData, GetTableL
   }
 );
 
+export const getFaculties = createAsyncThunk<Faculty[]>(
+  "tables/getFaculties",
+  async () => {
+    const response = await axios.get<Faculty[]>(api_url + "/api/v1/faculty-list");
+    return response.data;
+  }
+);
+
 const tablesSlice = createSlice({
   name: 'tables',
   initialState,
@@ -188,6 +201,18 @@ const tablesSlice = createSlice({
       .addCase(getTableList.rejected, (state, action) => {
         state.tablesStatus = 'failed';
         state.tablesError = action.error.message ?? 'Login failed';
+        state.tablesErrorStatus = true;
+      })
+      .addCase(getFaculties.pending, (state) => {
+        state.tablesStatus = "loading";
+      })
+      .addCase(getFaculties.fulfilled, (state, action) => {
+        state.tablesStatus = "idle";
+        state.faculties = action.payload;
+      })
+      .addCase(getFaculties.rejected, (state, action) => {
+        state.tablesStatus = "failed";
+        state.tablesError = action.error.message ?? "Something went wrong";
         state.tablesErrorStatus = true;
       });
   },

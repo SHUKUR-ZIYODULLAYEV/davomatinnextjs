@@ -87,7 +87,7 @@ export const { logout, setErrorAction } = userSlice.actions;
 axios.interceptors.request.use(async (config) => {
   var user = JSON.parse(sessionStorage.getItem('user') as string);
   if (user && user.access && user.expired_at) {
-    const now = new Date().getTime()*100000; // get current time in seconds
+    const now = new Date().getTime(); // get current time in seconds
     if (now > user.expired_at) {
       console.log("logg1");
       
