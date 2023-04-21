@@ -3,14 +3,15 @@ import SEO from '@/layout/seo/seo'
 import Layout from '@/layout/layout'
 import { AppDispatch, RootState } from "@/store/store";
 import { useSelector, useDispatch } from 'react-redux';
-import { getAllTableList, getFaculties, getTableList } from '@/slices/tablesSlice';
+import { getAllTableList, getFaculties, getGroups, getTableList } from '@/slices/tablesSlice';
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
-  const {allTableList, tableList, faculties} = useSelector((state: RootState) => state.tables)
+  const {allTableList, tableList, faculties, groups} = useSelector((state: RootState) => state.tables)
   // console.log("allTableList:", allTableList);
   // console.log("tableList:", tableList);
-  console.log("faculties:", faculties);
+  // console.log("faculties:", faculties);
+  console.log("groups:", groups);
   const GetAllTableList = () => {
     dispatch(
       getAllTableList({
@@ -26,6 +27,11 @@ export default function Home() {
     );
     dispatch(
       getFaculties()
+    );
+    dispatch(
+      getGroups({
+        faculty_id: 2,
+      })
     );
   }
   return (

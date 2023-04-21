@@ -7,7 +7,7 @@ interface TableState {
   tableList: GetTableListResponseData | null,
   allTableList: GetAllTableListResponseData | null;
   faculties: Faculty[];
-  groups: string[];
+  groups: Group[];
   rooms: string[];
   tutors: string[];
   deputies: string[];
@@ -89,6 +89,15 @@ interface Faculty {
   name: string;
 }
 
+interface Group {
+  id: number;
+  name: string;
+}
+
+interface GetGroupsParam {
+  faculty_id: number;
+}
+
 const initialState: TableState = {
   tableList: {
     count: 0,
@@ -163,6 +172,18 @@ export const getFaculties = createAsyncThunk<Faculty[]>(
   }
 );
 
+export const getGroups = createAsyncThunk<Group[], GetGroupsParam>(
+  "tables/getGroups",
+  async (params) => {
+    const response = await axios.get<Group[]>(api_url + "/api/v1/group-list", {
+      params: {
+        faculty_id: params?.faculty_id
+      },
+    });
+    return response.data;
+  }
+);
+
 const tablesSlice = createSlice({
   name: 'tables',
   initialState,
@@ -211,6 +232,18 @@ const tablesSlice = createSlice({
         state.faculties = action.payload;
       })
       .addCase(getFaculties.rejected, (state, action) => {
+        state.tablesStatus = "failed";
+        state.tablesError = action.error.message ?? "Something went wrong";
+        state.tablesErrorStatus = true;
+      })
+      .addCase(getGroups.pending, (state) => {
+        state.tablesStatus = "loading";
+      })
+      .addCase(getGroups.fulfilled, (state, action) => {
+        state.tablesStatus = "idle";
+        state.groups = action.payload;
+      })
+      .addCase(getGroups.rejected, (state, action) => {
         state.tablesStatus = "failed";
         state.tablesError = action.error.message ?? "Something went wrong";
         state.tablesErrorStatus = true;
