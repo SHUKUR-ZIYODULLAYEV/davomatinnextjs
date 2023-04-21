@@ -8,7 +8,7 @@ interface TableState {
   allTableList: GetAllTableListResponseData | null;
   faculties: Faculty[];
   groups: Group[];
-  rooms: string[];
+  rooms: Rooms[];
   tutors: string[];
   deputies: string[];
   tablesStatus: 'idle' | 'loading' | 'failed';
@@ -98,6 +98,21 @@ interface GetGroupsParam {
   faculty_id: number;
 }
 
+interface Rooms {
+  id: number;
+  title: string;
+  building: string;
+  floor: string;
+  room_type: string;
+  room_size: number;
+}
+
+interface GetRoomsParam {
+  building: string;
+  room_type: string;
+  floor: string;
+}
+
 const initialState: TableState = {
   tableList: {
     count: 0,
@@ -184,6 +199,20 @@ export const getGroups = createAsyncThunk<Group[], GetGroupsParam>(
   }
 );
 
+export const GetRooms = createAsyncThunk<Rooms[], GetRoomsParam>(
+  "tables/GetRooms",
+  async (param) => {
+    const response = await axios.get<Rooms[]>(api_url + "/api/v1/unvroom-list", {
+      params: {
+        building: param?.building,
+        room_type: param?.room_type,
+        floor: param?.floor,
+      },
+    });
+    return response.data;
+  }
+);
+
 const tablesSlice = createSlice({
   name: 'tables',
   initialState,
@@ -244,6 +273,18 @@ const tablesSlice = createSlice({
         state.groups = action.payload;
       })
       .addCase(getGroups.rejected, (state, action) => {
+        state.tablesStatus = "failed";
+        state.tablesError = action.error.message ?? "Something went wrong";
+        state.tablesErrorStatus = true;
+      }) 
+      .addCase(GetRooms.pending, (state) => {
+        state.tablesStatus = "loading";
+      })
+      .addCase(GetRooms.fulfilled, (state, action) => {
+        state.tablesStatus = "idle";
+        state.rooms = action.payload;
+      })
+      .addCase(GetRooms.rejected, (state, action) => {
         state.tablesStatus = "failed";
         state.tablesError = action.error.message ?? "Something went wrong";
         state.tablesErrorStatus = true;
