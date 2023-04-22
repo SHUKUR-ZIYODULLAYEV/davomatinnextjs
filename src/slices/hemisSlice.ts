@@ -6,18 +6,18 @@ const hemis_url = process.env.NEXT_PUBLIC_HEMIS_API_URL as string;
 interface HemisState {
   hemisTablesStatus: 'idle' | 'loading' | 'failed';
   hemisTablesError: string | null;
-  tablesErrorStatus: boolean;
-  departments: string[] | null;
+  hemisErrorStatus: boolean;
+  hemisDepartments: HemisDepartment[] | null;
   hemisFaculties: HemisFaculties[] | null;
-  teachers: {
+  hemisTeachers: {
     items: string[] | null;
     pagination: {
       totalCount: boolean;
     }
   };
-  schedule: string[] | null;
-  subject_loading: boolean;
-  subjects: {
+  hemisSchedule: string[] | null;
+  hemisSubject_loading: boolean;
+  hemisSubjects: {
     items: string[] | null;
     pagination: {
       pageCount: number;
@@ -31,21 +31,29 @@ interface HemisFaculties {
   pagination: string[] | null;
 }
 
+interface HemisDepartment {
+  items: string[] | null;
+}
+
+interface HemisDepartmentParam{
+  faculty_id: number | null;
+}
+
 const initialState: HemisState = {
   hemisTablesStatus: 'idle',
   hemisTablesError: null,
-  tablesErrorStatus: false,
-  departments: [],
+  hemisErrorStatus: false,
+  hemisDepartments: [],
   hemisFaculties: [],
-  teachers: {
+  hemisTeachers: {
     items: [],
     pagination: {
       totalCount: true,
     },
   },
-  schedule: [],
-  subject_loading: false,
-  subjects: {
+  hemisSchedule: [],
+  hemisSubject_loading: false,
+  hemisSubjects: {
     items: [],
     pagination: {
       pageCount: 0,
@@ -54,9 +62,7 @@ const initialState: HemisState = {
   },
 };
 
-export const GetHemisFaculties = createAsyncThunk<HemisFaculties[]>(
-  'tables/GetHemisFaculties',
-  async () => {
+export const GetHemisFaculties = createAsyncThunk<HemisFaculties[]>( 'hemis/GetHemisFaculties', async () => {
     const response = await axios.get<HemisFaculties[]>(hemis_url + '/v1/data/department-list', {
       headers: {
         Authorization: `Bearer LnbuIBG8t2MWj_q9EYEzLwiZWYcmscSa`,
@@ -65,10 +71,23 @@ export const GetHemisFaculties = createAsyncThunk<HemisFaculties[]>(
         _structure_type: 11,
       },
     });
-    console.log("response.data", response.data);
-    
     return response.data;
   }
+);
+
+export const GetHemisDepartment = createAsyncThunk<HemisDepartment[], HemisDepartmentParam>( 'hemis/GetHemisDepartment', async (param) => {
+  const response = await axios.get<HemisDepartment[]>(hemis_url + '/v1/data/department-list', {
+    headers: {
+      Authorization: `Bearer LnbuIBG8t2MWj_q9EYEzLwiZWYcmscSa`,
+    },
+    params: {
+      _structure_type: 12,
+      limit: 100,
+      parent: param?.faculty_id
+    },
+  });
+  return response.data;
+}
 );
 
 const hemisTableSlice = createSlice({
@@ -86,7 +105,19 @@ const hemisTableSlice = createSlice({
     builder.addCase(GetHemisFaculties.rejected, (state, action) => {
       state.hemisTablesStatus = 'failed';
       state.hemisTablesError = action.error.message ?? "Something went wrong";
-      state.tablesErrorStatus = true;
+      state.hemisErrorStatus = true;
+    })
+    builder.addCase(GetHemisDepartment.pending, (state) => {
+      state.hemisTablesStatus = 'loading';
+    });
+    builder.addCase(GetHemisDepartment.fulfilled, (state, action) => {
+      state.hemisTablesStatus = 'idle';
+      state.hemisDepartments = action.payload;
+    });
+    builder.addCase(GetHemisDepartment.rejected, (state, action) => {
+      state.hemisTablesStatus = 'failed';
+      state.hemisTablesError = action.error.message ?? "Something went wrong";
+      state.hemisErrorStatus = true;
     });
   },
 });
