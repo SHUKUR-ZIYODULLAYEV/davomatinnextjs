@@ -12,13 +12,7 @@ interface HemisState {
   hemisTeachers: HemisTeachers[] | null;
   hemisSchedule: HemisSchedule[] | null;
   hemisSubject_loading: boolean;
-  hemisSubjects: {
-    items: string[] | null;
-    pagination: {
-      pageCount: number;
-      page: number;
-    }
-  };
+  hemisSubjects: HemisSubjects[] | null;
 }
 
 interface HemisFaculties {
@@ -49,6 +43,16 @@ interface HemisSchedule {
   pagination: object | null;
 }
 
+interface HemisSubjects {
+  items: string[] | null;
+  pagination: object | null;
+}
+
+interface HemisSubjectsParam{ 
+  department_id: number;
+  page: number;
+}
+
 const initialState: HemisState = {
   hemisTablesStatus: 'idle',
   hemisTablesError: null,
@@ -58,13 +62,7 @@ const initialState: HemisState = {
   hemisTeachers: [],
   hemisSchedule: [],
   hemisSubject_loading: false,
-  hemisSubjects: {
-    items: [],
-    pagination: {
-      pageCount: 0,
-      page: 0,
-    },
-  },
+  hemisSubjects: []
 };
 
 export const GetHemisFaculties = createAsyncThunk<HemisFaculties[]>( 'hemis/GetHemisFaculties', async () => {
@@ -124,6 +122,21 @@ export const GetHemisSchedule = createAsyncThunk<HemisSchedule[]>( 'hemis/GetHem
 }
 );
 
+export const GetHemisSubjects = createAsyncThunk<HemisSubjects[], HemisSubjectsParam>( 'hemis/GetHemisSubjects', async (param) => {
+  const response = await axios.get<HemisSchedule[]>(hemis_url + '/v1/data/subject-list', {
+    headers: {
+      Authorization: `Bearer LnbuIBG8t2MWj_q9EYEzLwiZWYcmscSa`,
+    },
+    params: {
+      limit: 200,
+      _department: param?.department_id,
+      page: param?.page
+    },
+  });
+  return response.data;
+}
+);
+
 const hemisTableSlice = createSlice({
   name: 'hemisTable',
   initialState,
@@ -173,6 +186,18 @@ const hemisTableSlice = createSlice({
       state.hemisSchedule = action.payload;
     });
     builder.addCase(GetHemisSchedule.rejected, (state, action) => {
+      state.hemisTablesStatus = 'failed';
+      state.hemisTablesError = action.error.message ?? "Something went wrong";
+      state.hemisErrorStatus = true;
+    })
+    builder.addCase(GetHemisSubjects.pending, (state) => {
+      state.hemisTablesStatus = 'loading';
+    });
+    builder.addCase(GetHemisSubjects.fulfilled, (state, action) => {
+      state.hemisTablesStatus = 'idle';
+      state.hemisSubjects = action.payload;
+    });
+    builder.addCase(GetHemisSubjects.rejected, (state, action) => {
       state.hemisTablesStatus = 'failed';
       state.hemisTablesError = action.error.message ?? "Something went wrong";
       state.hemisErrorStatus = true;

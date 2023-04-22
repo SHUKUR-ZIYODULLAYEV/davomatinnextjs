@@ -4,12 +4,12 @@ import Layout from '@/layout/layout'
 import { AppDispatch, RootState } from "@/store/store";
 import { useSelector, useDispatch } from 'react-redux';
 import { GetDeputyDean, GetRooms, GetTutors, getAllTableList, getFaculties, getGroups, getTableList } from '@/slices/tablesSlice';
-import { GetHemisDepartment, GetHemisFaculties, GetHemisSchedule, GetHemisTeachers } from '@/slices/hemisSlice';
+import { GetHemisDepartment, GetHemisFaculties, GetHemisSchedule, GetHemisSubjects, GetHemisTeachers } from '@/slices/hemisSlice';
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
   const {allTableList, tableList, faculties, groups, rooms, tutors, deputies} = useSelector((state: RootState) => state.tables)
-  const {hemisFaculties, hemisDepartments, hemisTeachers, hemisSchedule} = useSelector((state: RootState) => state.hemis)
+  const {hemisFaculties, hemisDepartments, hemisTeachers, hemisSchedule, hemisSubjects} = useSelector((state: RootState) => state.hemis)
   // console.log("allTableList:", allTableList);
   // console.log("tableList:", tableList);
   // console.log("faculties:", faculties);
@@ -21,7 +21,8 @@ export default function Home() {
   // console.log("hemisFaculties:", hemisFaculties);
   // console.log("hemisDepartments:", hemisDepartments);
   // console.log("hemisTeachers:", hemisTeachers);
-  console.log("hemisSchedule:", hemisSchedule);
+  // console.log("hemisSchedule:", hemisSchedule);
+  console.log("hemisSubjects:", hemisSubjects);
   const GetAllTableList = () => {
     dispatch(
       getAllTableList({
@@ -72,6 +73,12 @@ export default function Home() {
     );
     dispatch(
       GetHemisSchedule()
+    );
+    dispatch(
+      GetHemisSubjects({ 
+        department_id: 9,
+        page: 1
+      })
     );
   }
   return (
