@@ -4,17 +4,21 @@ import Layout from '@/layout/layout'
 import { AppDispatch, RootState } from "@/store/store";
 import { useSelector, useDispatch } from 'react-redux';
 import { GetDeputyDean, GetRooms, GetTutors, getAllTableList, getFaculties, getGroups, getTableList } from '@/slices/tablesSlice';
+import { GetHemisFaculties } from '@/slices/hemisSlice';
 
 export default function Home() {
   const dispatch = useDispatch<AppDispatch>();
   const {allTableList, tableList, faculties, groups, rooms, tutors, deputies} = useSelector((state: RootState) => state.tables)
+  const {hemisFaculties} = useSelector((state: RootState) => state.hemis)
   // console.log("allTableList:", allTableList);
   // console.log("tableList:", tableList);
   // console.log("faculties:", faculties);
   // console.log("groups:", groups);
   // console.log("rooms:", rooms);
   // console.log("tutors:", tutors);
-  console.log("deputies:", deputies);
+  // console.log("deputies:", deputies);
+  // console.log("deputies:", deputies);
+  console.log("hemisFaculties:", hemisFaculties);
   const GetAllTableList = () => {
     dispatch(
       getAllTableList({
@@ -48,6 +52,9 @@ export default function Home() {
     );
     dispatch(
       GetDeputyDean()
+    );
+    dispatch(
+      GetHemisFaculties()
     );
   }
   return (

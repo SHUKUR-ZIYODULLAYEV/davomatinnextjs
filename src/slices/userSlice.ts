@@ -84,48 +84,48 @@ const userSlice = createSlice({
 export const { logout, setErrorAction } = userSlice.actions;
 
 // Check the access token validity before sending each request
-axios.interceptors.request.use(async (config) => {
-  var user = JSON.parse(sessionStorage.getItem('user') as string);
-  if (user && user.access && user.expired_at) {
-    const now = new Date().getTime(); // get current time in seconds
-    if (now > user.expired_at) {
-      console.log("logg1");
+// axios.interceptors.request.use(async (config) => {
+//   var user = JSON.parse(sessionStorage.getItem('user') as string);
+//   if (user && user.access && user.expired_at) {
+//     const now = new Date().getTime(); // get current time in seconds
+//     if (now > user.expired_at) {
+//       console.log("logg1");
       
-      // Access token has expired, refresh it
-      // async () => {
-      //   const response = await axios.post(api_url + '/api/login/refresh/v2/', {
-      //     refresh: user.refresh,
-      //   });
-      //   console.log("responselogg1:", response);
+//       // Access token has expired, refresh it
+//       // async () => {
+//       //   const response = await axios.post(api_url + '/api/login/refresh/v2/', {
+//       //     refresh: user.refresh,
+//       //   });
+//       //   console.log("responselogg1:", response);
         
-      //   user.access = response.data.access;
-      //   user.refresh = response.data.refresh;
-      //   user.created_at = response.data.created_at;
-      //   user.expired_at = response.data.expired_at;
-      //   sessionStorage.setItem('user', JSON.stringify(user));
-      //   config.headers.Authorization = `Bearer ${response.data.access}`;
-      // }
-      try {
-        const response = await axios.post(api_url + '/api/login/refresh/v2/', {
-          refresh: user.refresh,
-        });
-        console.log("responselogg1:", response);
+//       //   user.access = response.data.access;
+//       //   user.refresh = response.data.refresh;
+//       //   user.created_at = response.data.created_at;
+//       //   user.expired_at = response.data.expired_at;
+//       //   sessionStorage.setItem('user', JSON.stringify(user));
+//       //   config.headers.Authorization = `Bearer ${response.data.access}`;
+//       // }
+//       try {
+//         const response = await axios.post(api_url + '/api/login/refresh/v2/', {
+//           refresh: user.refresh,
+//         });
+//         console.log("responselogg1:", response);
         
-        user.access = response.data.access;
-        user.refresh = response.data.refresh;
-        user.created_at = response.data.created_at;
-        user.expired_at = response.data.expired_at;
-        sessionStorage.setItem('user', JSON.stringify(user));
-        config.headers.Authorization = `Bearer ${response.data.access}`;
-      } catch (error) {
-        // Handle refresh token error
-        console.log('Refresh token error:', error);
-      }
-    } else {
-      console.log("logg2");
-      config.headers.Authorization = `Bearer ${user.access}`;
-    }
-  }
-  return config;
-});
+//         user.access = response.data.access;
+//         user.refresh = response.data.refresh;
+//         user.created_at = response.data.created_at;
+//         user.expired_at = response.data.expired_at;
+//         sessionStorage.setItem('user', JSON.stringify(user));
+//         config.headers.Authorization = `Bearer ${response.data.access}`;
+//       } catch (error) {
+//         // Handle refresh token error
+//         console.log('Refresh token error:', error);
+//       }
+//     } else {
+//       console.log("logg2");
+//       config.headers.Authorization = `Bearer ${user.access}`;
+//     }
+//   }
+//   return config;
+// });
 export default userSlice.reducer;

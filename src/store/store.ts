@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "../slices/userSlice";
 import tablesReducer from "../slices/tablesSlice";
+import hemisReducer from "../slices/hemisSlice";
 
 export function makeStore() {
   return configureStore({
     reducer: {
       user: userReducer,
-      tables: tablesReducer
+      tables: tablesReducer,
+      hemis: hemisReducer
     },
   });
 }
